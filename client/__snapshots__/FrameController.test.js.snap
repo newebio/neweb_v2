@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FrameController:: static render 1`] = `
+<div
+  id="testDiv1"
+>
+  Hello, world!
+</div>
+`;
+
+exports[`FrameController:: update route 1`] = `
+<div
+  id="parent"
+>
+  parent::
+  <div
+    id="testDiv1"
+  >
+    Hello, world!
+  </div>
+</div>
+`;
