@@ -32,6 +32,7 @@ function grabSuccessWithInitial(url, content) {
             content,
             data: page_grabber_1.obj("window.__initial_data"),
             route: page_grabber_1.obj("window.__initial_route"),
+            modules: page_grabber_1.obj("window.__modules"),
         });
     });
 }

@@ -14,7 +14,11 @@ const FileConfiguration_1 = require("./../lib/FileConfiguration");
 const FrameController_1 = require("./FrameController");
 class ClientFileConfiguration {
     constructor(config) {
-        this.fileConfiguration = new FileConfiguration_1.default({ appDir: config.appDir });
+        this.fileConfiguration = new FileConfiguration_1.default({
+            appDir: config.appDir,
+            modulesPath: __dirname + "/../cache",
+            excludedModules: ["react"],
+        });
     }
     resolveFrame(name) {
         return __awaiter(this, void 0, void 0, function* () {

@@ -17,10 +17,12 @@ export async function grabSuccessWithInitial<T>(url: string, content: T): Promis
     content: T;
     data: any;
     route: any;
+    modules: any;
 }> {
     return grabSuccess(url, {
         content,
         data: obj("window.__initial_data"),
         route: obj("window.__initial_route"),
+        modules: obj("window.__modules"),
     });
 }

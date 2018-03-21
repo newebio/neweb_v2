@@ -1,0 +1,1 @@
+module.exports = require("__test_package3");

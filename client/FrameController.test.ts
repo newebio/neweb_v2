@@ -6,7 +6,11 @@ import FrameController from "./FrameController";
 class ClientFileConfiguration {
     protected fileConfiguration: FileConfiguration;
     constructor(config: { appDir: string }) {
-        this.fileConfiguration = new FileConfiguration({ appDir: config.appDir });
+        this.fileConfiguration = new FileConfiguration({
+            appDir: config.appDir,
+            modulesPath: __dirname + "/../cache",
+            excludedModules: ["react"],
+        });
     }
     public async resolveFrame(name: string): Promise<IFrameConfigClient> {
         const config = await this.fileConfiguration.resolveFrame(name);

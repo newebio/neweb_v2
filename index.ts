@@ -1,5 +1,6 @@
 import { Onemitter } from "onemitter";
 import DataSource from "./lib/DataSource";
+import { IPackInfoModule } from "./lib/ModulePacker";
 export { default as DataSource } from "./lib/DataSource";
 export interface IRequest {
     url: string;
@@ -23,6 +24,8 @@ export interface IRouteFrame {
 export interface IConfiguration {
     resolveFrame(name: string): Promise<IFrameConfig>;
     hasFrame(name: string): Promise<boolean>;
+    getModulesForFrame(name: string): Promise<IPackInfoModule[]>;
+    getModuleContent(moduleInfo: IPackInfoModule): Promise<string>;
 }
 export interface IClientConfiguration {
     resolveFrame(name: string): Promise<IFrameConfigClient>;
@@ -61,3 +64,4 @@ export interface IRemoteProvider {
     data(frameName: string, params: any, dataName: string): Onemitter<any>;
     action(frameName: string, params: any, action: string, args: any[]): void;
 }
+export const REQUIRE_FUNC_NAME = "loadModule";
