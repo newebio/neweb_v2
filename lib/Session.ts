@@ -5,16 +5,17 @@ import React = require("react");
 import ReactDOMServer = require("react-dom/server");
 import sleep from "sleep-es6";
 import { promisify } from "util";
+import diffModules from "../utils/diffModules";
 import uniqueModules from "../utils/uniqueModules";
 import { IConfiguration, IFramesRoute, IRoute } from "./..";
 import { IPackInfoModule } from "./ModulePacker";
-import diffModules from "../utils/diffModules";
 
 export interface ISessionConfig {
-    initialRoute: IFramesRoute;
+    id: string;
+    hash: string;
+    info?: ISessionInfo;
     configuration: IConfiguration;
     sessionsPath: string;
-    sid: string;
 }
 export interface ISessionInfo {
     html: string;
@@ -28,29 +29,20 @@ class Session {
     protected currentRoute: IFramesRoute;
     protected id: string;
     protected hash: string;
-    protected info: ISessionInfo;
+    protected info?: ISessionInfo;
     constructor(protected config: ISessionConfig) {
-
+        this.id = this.config.id;
+        this.hash = this.config.hash;
+        this.info = this.config.info;
     }
-    public async init() {
-        this.currentRoute = this.config.initialRoute;
-        if (this.config.sid) {
-            const [id, hash] = this.config.sid.split(":");
-            if (await promisify(exists)(this.config.sessionsPath + "/" + id + "/session.json")) {
-                const sessionInfo = JSON.parse(
-                    (await promisify(readFile)(this.config.sessionsPath + "/" + id + "/session.json")).toString());
-                if (sessionInfo.hash === hash) {
-                    this.info = sessionInfo;
-                    this.id = id;
-                    this.hash = hash;
-                    return;
-                }
-            }
-        }
-        this.id = new Date().getTime().toString() + Math.round(Math.random() * 100000).toString();
-        this.hash = new Date().getTime().toString() + Math.round(Math.random() * 100000).toString();
+    public getId() {
+        return this.id;
     }
-    public async render(): Promise<ISessionInfo> {
+    public getHash() {
+        return this.hash;
+    }
+    public async render(route: IFramesRoute): Promise<ISessionInfo> {
+        this.currentRoute = route;
         const frames = await Promise.all(this.currentRoute.frames.map(async (routeFrame) => {
             const frame = await this.config.configuration.resolveFrame(routeFrame.frame);
             const params = routeFrame.params || {};
@@ -98,7 +90,8 @@ class Session {
             html: ReactDOMServer.renderToString(children),
             route: this.currentRoute,
             data,
-            modules: this.info ? diffModules(modules, this.info.modules) : modules,
+            modules,
+            // modules: this.info ? diffModules(modules, this.info.modules) : modules,
         };
     }
 }

@@ -1,5 +1,5 @@
 // tslint:disable max-classes-per-file
-import { exists, readFile } from "fs";
+import { createReadStream, exists, readFile } from "fs";
 import { resolve } from "path";
 import { promisify } from "util";
 import { IFrameConfig } from "..";
@@ -18,6 +18,10 @@ class FileConfiguration {
         return (await promisify(readFile)(
             this.config.modulesPath + "/" + moduleInfo.type + "/" + moduleInfo.name +
             "/" + moduleInfo.version + "/index.js")).toString();
+    }
+    public async getModuleContentStream(moduleInfo: IPackInfoModule) {
+        return createReadStream(this.config.modulesPath + "/" + moduleInfo.type + "/" + moduleInfo.name +
+            "/" + moduleInfo.version + "/index.js");
     }
     public async getModulesForFrame(name: string) {
         if (!await promisify(exists)(this.config.appDir + "/frames/" + name)) {

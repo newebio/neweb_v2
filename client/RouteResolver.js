@@ -8,23 +8,26 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const Session_1 = require("./Session");
-class SessionFactory {
+class RouteResolver {
     constructor(config) {
         this.config = config;
     }
-    createSession(params) {
+    resolve(href) {
         return __awaiter(this, void 0, void 0, function* () {
-            const sid = params.sid;
-            const session = new Session_1.default({
-                sid,
-                initialRoute: params.route,
-                configuration: this.config.configuration,
-                sessionsPath: this.config.sessionsPath,
+            const response = yield fetch(this.config.address + "/resolveRoute", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    url: href,
+                }),
             });
-            yield session.init();
-            return session;
+            if (response.status !== 200) {
+                throw new Error("Invalid request::" + (yield response.text()));
+            }
+            return response.json();
         });
     }
 }
-exports.default = SessionFactory;
+exports.default = RouteResolver;

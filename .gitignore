@@ -59,3 +59,5 @@ typings/
 tmp
 cache
 app
+__fixtures__/cache
+__fixtures__/sessions

@@ -4,7 +4,7 @@ import mkdirp = require("mkdirp");
 import { basename, dirname, resolve as resolvePath, sep } from "path";
 import { promisify } from "util";
 import webpack = require("webpack");
-import { REQUIRE_FUNC_NAME } from "..";
+import { REQUIRE_FUNC_NAME } from "./../common";
 import { getNearestPackageJSON } from "./../utils/module-info";
 import uniqueModules from "./../utils/uniqueModules";
 export interface IModulePackerConfig {
@@ -19,24 +19,24 @@ export interface IPackInfo extends IPackInfoModule {
 export interface IPackInfoModule {
     name: string;
     version?: string;
-    type: "node" | "local" | "internal";
+    type: "npm" | "local" | "internal";
 }
 
 class ModulePacker {
     protected modules: IPackInfo[] = [];
     protected localModulesPath: string;
-    protected nodeModulesPath: string;
+    protected npmModulesPath: string;
     protected excludedModules: string[] = [];
     constructor(protected config: IModulePackerConfig) {
         if (this.config.excludedModules) {
             this.excludedModules = this.config.excludedModules;
         }
         this.localModulesPath = resolvePath(this.config.modulesPath + "/local");
-        this.nodeModulesPath = resolvePath(this.config.modulesPath + "/node");
+        this.npmModulesPath = resolvePath(this.config.modulesPath + "/npm");
     }
     public async init() {
         await promisify(mkdirp)(this.localModulesPath);
-        await promisify(mkdirp)(this.nodeModulesPath);
+        await promisify(mkdirp)(this.npmModulesPath);
         //        let files = await globby(this.localModulesPath + "/**/neweb.json", { absolute: true });
         //       for (const file of files) {
         //          const newebJSON: IModule = require(file);
@@ -86,23 +86,23 @@ class ModulePacker {
                 externals: [async (context, childModuleName, callback) => {
                     if (!childModuleName.startsWith(".") && childModuleName !== localPath) {
                         if (this.excludedModules.indexOf(childModuleName) > -1) {
-                            callback(null, `the ` + `${REQUIRE_FUNC_NAME}("node", "${childModuleName}")`);
+                            callback(null, `the ` + `${REQUIRE_FUNC_NAME}("npm", "${childModuleName}")`);
                             return;
                         }
                         const child = await this.handleChildNodeModule(context, childModuleName);
                         info.modules.push({
                             name: child.name,
-                            type: "node",
+                            type: "npm",
                             version: child.version,
                         });
                         child.modules.map((m) => info.modules.push(m));
-                        callback(null, `the ` + `${REQUIRE_FUNC_NAME}("node", "${child.name}", "${child.version}")`);
+                        callback(null, `the ` + `${REQUIRE_FUNC_NAME}("npm", "${child.name}", "${child.version}")`);
                         return;
                     }
                     if (childModuleName.startsWith(".") && childModuleName !== localPath) {
                         const depInfo = await this.addLocalPackage(require.resolve(context + "/" + childModuleName));
                         info.modules.push({
-                            name: "./" + depInfo.name,
+                            name: depInfo.name,
                             version: depInfo.version,
                             type: "local",
                         });
@@ -126,7 +126,7 @@ class ModulePacker {
                 await promisify(writeFile)(newebFile, `{
                     "name": "${moduleName}",
                     "version": "${version}",
-                    "type": "node",
+                    "type": "npm",
                     "dependencies": ${JSON.stringify(
                         info.modules.map((mod) => ({ name: mod.name, type: mod.type, version: mod.version })))}
                 }`);
@@ -135,10 +135,10 @@ class ModulePacker {
         });
     }
     public async addNodePackage(name: string, version: string): Promise<IPackInfo> {
-        const mainFile = this.nodeModulesPath + "/" + name + "/" + version + "/index.js";
-        const newebFile = this.nodeModulesPath + "/" + name + "/" + version + "/neweb.json";
+        const mainFile = this.npmModulesPath + "/" + name + "/" + version + "/index.js";
+        const newebFile = this.npmModulesPath + "/" + name + "/" + version + "/neweb.json";
         const existingModuleInfo =
-            this.modules.find((m) => m.type === "node" && m.name === name && m.version === version);
+            this.modules.find((m) => m.type === "npm" && m.name === name && m.version === version);
         if (existingModuleInfo) {
             return existingModuleInfo;
         }
@@ -151,7 +151,7 @@ class ModulePacker {
                 modules: jsonModuleInfo.dependencies,
             };
         }
-        const info: IPackInfo = { name, version, modules: [], type: "node" };
+        const info: IPackInfo = { name, version, modules: [], type: "npm" };
         this.modules.push(info);
         return new Promise<IPackInfo>((resolve, reject) => {
             webpack({
@@ -166,12 +166,12 @@ class ModulePacker {
                 externals: [async (context, childModuleName: string, callback) => {
                     if (!childModuleName.startsWith(".") && childModuleName !== name) {
                         if (this.excludedModules.indexOf(childModuleName) > -1) {
-                            callback(null, `the ` + `${REQUIRE_FUNC_NAME}("node", "${childModuleName}")`);
+                            callback(null, `the ` + `${REQUIRE_FUNC_NAME}("npm", "${childModuleName}")`);
                             return;
                         }
                         const child = await this.handleChildNodeModule(context, childModuleName);
                         child.modules.map((m) => info.modules.push(m));
-                        callback(null, `the ` + `${REQUIRE_FUNC_NAME}("node","${child.name}", "${child.version}")`);
+                        callback(null, `the ` + `${REQUIRE_FUNC_NAME}("npm","${child.name}", "${child.version}")`);
                         return;
                     }
                     (callback as any)();
@@ -189,7 +189,7 @@ class ModulePacker {
                 await promisify(writeFile)(newebFile, `{
                     "name": "${name}",
                     "version": "${version}",
-                    "type": "node",
+                    "type": "npm",
                     "dependencies": ${JSON.stringify(
                         info.modules.map((mod) => ({ name: mod.name, type: mod.type, version: mod.version })))}
                 }`);
@@ -211,7 +211,7 @@ class ModulePacker {
         const modules: IPackInfoModule[] = [{
             name: childModuleName,
             version: packageJSON.version,
-            type: "node",
+            type: "npm",
         }];
         depInfo.modules.map((m) => modules.push(m));
         return { name: childModuleName, modules, version: packageJSON.version };
