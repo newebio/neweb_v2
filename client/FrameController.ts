@@ -1,6 +1,6 @@
 import o, { Onemitter } from "onemitter";
 import React = require("react");
-import { DataSource, IClientConfiguration, IFrameConfigClient, IFramesRoute, IRemoteProvider } from "./..";
+import { DataSource, IClientConfiguration, IFrameConfigClient, IRemoteProvider, ISessionRoute } from "./..";
 import Frame from "./Frame";
 export interface IFrameControllerConfig {
     configuration: IClientConfiguration;
@@ -30,7 +30,7 @@ class FrameController {
         };
         this.framesStates.push(rootFrameState);
     }
-    public async render(route: IFramesRoute, data: any[]) {
+    public async render(route: ISessionRoute, data: any[]) {
         await this.updateRoute(route, data);
         return React.createElement(Frame, {
             actions: this.framesStates[0].actions,
@@ -42,7 +42,7 @@ class FrameController {
             key: "__root",
         });
     }
-    public async updateRoute(route: IFramesRoute, data: any[]) {
+    public async updateRoute(route: ISessionRoute, data: any[]) {
         const framesConfigs = (await Promise.all(route.frames.map(async (routeFrame) => {
             const frameConfig = await this.config.configuration.resolveFrame(routeFrame.frame) as IFrameConfigClient;
             return frameConfig;
@@ -57,7 +57,9 @@ class FrameController {
             const frameStateIndex = frame.index + 1;
             if (!this.framesStates[frameStateIndex] || this.framesStates[frameStateIndex].name !== frame.frame.frame) {
                 const frameState =
-                    this.createFrameState(framesConfigs[frame.index], frame.frame.params, data[frame.index]);
+                    this.createFrameState(
+                        framesConfigs[frame.index], frame.frame.params, frame.frame.remote,
+                        data[frame.index]);
                 this.framesStates[frameStateIndex] = frameState;
                 this.framesStates[frameStateIndex - 1].childrenEmitter.emit(frameState.element);
             }
@@ -67,14 +69,16 @@ class FrameController {
     public getState() {
         return this.framesStates;
     }
-    protected createFrameState(frameConfig: IFrameConfigClient, params: any, initialData: any) {
+    protected createFrameState(frameConfig: IFrameConfigClient, params: any, remoteClient: any, initialData: any) {
         const childrenEmitter = o();
+        const frameRemoteClient = this.config.remote.createFrameRemoteClient(frameConfig.name, params);
+
         const remote: any = {};
-        for (const dataName of frameConfig.remote.data) {
-            remote[dataName] = this.config.remote.data(frameConfig.name, params, dataName);
+        for (const dataName of remoteClient.data) {
+            remote[dataName] = frameRemoteClient.data(dataName);
         }
-        for (const dataName of frameConfig.remote.actions) {
-            remote[dataName] = (...args: any[]) => this.config.remote.action(frameConfig.name, params, dataName, args);
+        for (const dataName of remoteClient.actions) {
+            remote[dataName] = (actionName: string, args: any) => frameRemoteClient.action(actionName, args);
         }
         const actions = new frameConfig.actions({
             params,

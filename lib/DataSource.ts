@@ -12,4 +12,10 @@ export default class DataSource<D, P, R> extends Onemitter<D> {
     public onInit() {
         this.emit(null as any);
     }
+    public onChangeParams() {
+        //
+    }
+    public onRemoteData() {
+        //
+    }
 }

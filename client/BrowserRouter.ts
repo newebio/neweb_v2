@@ -22,7 +22,6 @@ class BrowserRouter {
         history.replaceState(await this.navigate(url), "", url);
     }
     public async push(url: string) {
-        console.log("push", url);
         history.pushState(await this.navigate(url), "", url);
     }
     public async navigate(url: string) {

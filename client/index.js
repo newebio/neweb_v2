@@ -6,24 +6,22 @@ const BundleConfiguration_1 = require("./BundleConfiguration");
 const FrameController_1 = require("./FrameController");
 const ModulesManager_1 = require("./ModulesManager");
 const RouteResolver_1 = require("./RouteResolver");
-// import SocketClient from "./SocketClient";
-// const sessionInfo: { id: string; hash: string } = (window as any).__session_info;
-/*const socketClient = new SocketClient({
-    address: window.location.protocol + window.location.host,
-    sid: sessionInfo.id + sessionInfo.hash,
-    pid: Math.random().toString(),
-});*/
+const WebsocketRemoteProvider_1 = require("./WebsocketRemoteProvider");
 const routeInfo = window.__initial_data;
 const modulesManager = new ModulesManager_1.default({
     address: window.location.protocol + "//" + window.location.host + "/modules",
 });
 modulesManager.preloadModules(routeInfo.modules).then(() => {
+    const remoteProvider = new WebsocketRemoteProvider_1.default({
+        address: window.location.protocol + "//" + window.location.host,
+        sid: getCookie("sid"),
+    });
     const configuration = new BundleConfiguration_1.default({
         modulesManager,
     });
     const frameController = new FrameController_1.default({
         configuration,
-        remote: {},
+        remote: remoteProvider,
     });
     const routeResolver = new RouteResolver_1.default({
         address: window.location.protocol + "//" + window.location.host,
@@ -41,3 +39,7 @@ modulesManager.preloadModules(routeInfo.modules).then(() => {
         });
     });
 });
+function getCookie(name) {
+    const matches = document.cookie.match(new RegExp("(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, "\\$1") + "=([^;]*)"));
+    return matches ? decodeURIComponent(matches[1]) : "";
+}

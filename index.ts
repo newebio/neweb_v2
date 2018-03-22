@@ -22,6 +22,19 @@ export interface IRouteFrame {
     frame: string;
     params: any;
 }
+export interface ISessionRoute {
+    status: 200;
+    frames: ISessionFrameRoute[];
+}
+export interface ISessionFrameRoute {
+    frame: string;
+    params: any;
+    version: string;
+    remote: {
+        data: string[];
+        actions: string[];
+    };
+}
 export interface IConfiguration {
     resolveFrame(name: string): Promise<IFrameConfig>;
     hasFrame(name: string): Promise<boolean>;
@@ -39,6 +52,10 @@ export interface IFrameConfig {
     data: new (config: IFrameDataConfig) => DataSource<any, any, any>;
     actions: new (config: IFrameActionsConfig) => any;
     remote: new (...args: any[]) => any;
+    remoteClient: {
+        data: string[];
+        actions: string[];
+    };
 }
 export interface IFrameConfigClient {
     name: string;
@@ -63,12 +80,29 @@ export interface IFrameDataConfig {
     remote: any;
 }
 export interface IRemoteProvider {
-    data(frameName: string, params: any, dataName: string): Onemitter<any>;
-    action(frameName: string, params: any, action: string, args: any[]): void;
+    createFrameRemoteClient(frameName: string, params: any): IFrameRemoteClient;
+}
+export interface IFrameRemoteClient {
+    data(dataName: string): Onemitter<any>;
+    action(actionName: string, args: any): Promise<any>;
 }
 
 export interface IRouteInfo {
-    route: IFramesRoute;
+    route: ISessionRoute;
     data: any[];
     modules: IPackInfoModule[];
+}
+export interface IRemoteMessageFrameParams {
+    frameId: string;
+    frameName: string;
+    frameParams: any;
+    sid: string;
+}
+export interface IRemoteMessageFrameData extends IRemoteMessageFrameParams {
+    dataName: string;
+}
+export interface IRemoteMessageFrameAction extends IRemoteMessageFrameParams {
+    actionId: string;
+    actionName: string;
+    args: any;
 }

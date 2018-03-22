@@ -56,7 +56,7 @@ class FrameController {
             for (const frame of frames) {
                 const frameStateIndex = frame.index + 1;
                 if (!this.framesStates[frameStateIndex] || this.framesStates[frameStateIndex].name !== frame.frame.frame) {
-                    const frameState = this.createFrameState(framesConfigs[frame.index], frame.frame.params, data[frame.index]);
+                    const frameState = this.createFrameState(framesConfigs[frame.index], frame.frame.params, frame.frame.remote, data[frame.index]);
                     this.framesStates[frameStateIndex] = frameState;
                     this.framesStates[frameStateIndex - 1].childrenEmitter.emit(frameState.element);
                 }
@@ -67,14 +67,15 @@ class FrameController {
     getState() {
         return this.framesStates;
     }
-    createFrameState(frameConfig, params, initialData) {
+    createFrameState(frameConfig, params, remoteClient, initialData) {
         const childrenEmitter = onemitter_1.default();
+        const frameRemoteClient = this.config.remote.createFrameRemoteClient(frameConfig.name, params);
         const remote = {};
-        for (const dataName of frameConfig.remote.data) {
-            remote[dataName] = this.config.remote.data(frameConfig.name, params, dataName);
+        for (const dataName of remoteClient.data) {
+            remote[dataName] = frameRemoteClient.data(dataName);
         }
-        for (const dataName of frameConfig.remote.actions) {
-            remote[dataName] = (...args) => this.config.remote.action(frameConfig.name, params, dataName, args);
+        for (const dataName of remoteClient.actions) {
+            remote[dataName] = (actionName, args) => frameRemoteClient.action(actionName, args);
         }
         const actions = new frameConfig.actions({
             params,

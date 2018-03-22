@@ -7,7 +7,7 @@ import sleep from "sleep-es6";
 import { promisify } from "util";
 import diffModules from "../utils/diffModules";
 import uniqueModules from "../utils/uniqueModules";
-import { IConfiguration, IFramesRoute, IRoute } from "./..";
+import { IConfiguration, IFramesRoute, IRoute, ISessionRoute } from "./..";
 import { IPackInfoModule } from "./ModulePacker";
 
 export interface ISessionConfig {
@@ -20,7 +20,7 @@ export interface ISessionConfig {
 export interface ISessionInfo {
     html: string;
     data: any[];
-    route: IRoute;
+    route: ISessionRoute;
     modules: any[];
     sessionId: string;
     sessionHash: string;
@@ -65,6 +65,8 @@ class Session {
                 view: frame.view,
                 data: dataResult,
                 modules: frameModules,
+                remoteClient: frame.remoteClient,
+                params: routeFrame.params,
             };
         }));
         const data = frames.map((f) => f.data);
@@ -74,6 +76,7 @@ class Session {
             children = React.createElement(frame.view, { key: frame.name, children, data: frame.data });
             modules = modules.concat(frame.modules);
         }
+
         if (!this.info) {
             await promisify(mkdirp)(this.config.sessionsPath + "/" + this.id);
         }
@@ -88,7 +91,17 @@ class Session {
             sessionId: this.id,
             sessionHash: this.hash,
             html: ReactDOMServer.renderToString(children),
-            route: this.currentRoute,
+            route: {
+                status: this.currentRoute.status,
+                frames: frames.map((frame) => {
+                    return {
+                        frame: frame.name,
+                        params: frame.params,
+                        version: "",
+                        remote: frame.remoteClient,
+                    };
+                }),
+            },
             data,
             modules,
             // modules: this.info ? diffModules(modules, this.info.modules) : modules,

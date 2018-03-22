@@ -30,15 +30,15 @@ class BundleConfiguration {
             };
             const data = (yield this.config.modulesManager.hasModule("local", "frames/" + name + "/data")) ?
                 this.config.modulesManager.loadModule("local", "frames/" + name + "/data").default : onemitter_1.Onemitter;
+            const remote = (yield this.config.modulesManager.hasModule("local", "frames/" + name + "/remote")) ?
+                this.config.modulesManager.loadModule("local", "frames/" + name + "/remote").default : class {
+            };
             return {
                 name,
                 view,
                 actions,
                 data,
-                remote: {
-                    data: [],
-                    actions: [],
-                },
+                remote,
             };
         });
     }

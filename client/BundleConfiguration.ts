@@ -19,15 +19,14 @@ class BundleConfiguration implements IClientConfiguration {
             this.config.modulesManager.loadModule("local", "frames/" + name + "/actions").default : class { };
         const data = await this.config.modulesManager.hasModule("local", "frames/" + name + "/data") ?
             this.config.modulesManager.loadModule("local", "frames/" + name + "/data").default : Onemitter;
+        const remote = await this.config.modulesManager.hasModule("local", "frames/" + name + "/remote") ?
+            this.config.modulesManager.loadModule("local", "frames/" + name + "/remote").default : class { };
         return {
             name,
             view,
             actions,
             data,
-            remote: {
-                data: [],
-                actions: [],
-            },
+            remote,
         };
     }
 

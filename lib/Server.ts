@@ -9,7 +9,7 @@ import FileConfiguration from "./FileConfiguration";
 import FramesBasedRouter from "./FramesBasedRouter";
 import ModulePacker from "./ModulePacker";
 import ModulesServer from "./ModulesServer";
-import PageManager from "./PageManager";
+import RemoteManager from "./RemoteManager";
 import Session from "./Session";
 import SessionsManager from "./SessionsManager";
 export interface IServerConfig {
@@ -29,7 +29,7 @@ class Server {
     protected configuration: IConfiguration;
     protected server: HttpServer;
     protected sessionsManager: SessionsManager;
-    protected pageManager: PageManager;
+    protected remoteManager: RemoteManager;
     protected cachePath: string;
     protected sessionsPath: string;
     protected modulesServer: ModulesServer;
@@ -53,7 +53,7 @@ class Server {
             configuration: this.configuration,
             sessionsPath: this.sessionsPath,
         });
-        this.pageManager = new PageManager({
+        this.remoteManager = new RemoteManager({
             sessionsManager: this.sessionsManager,
             configuration: this.configuration,
         });
@@ -109,7 +109,7 @@ class Server {
     public startWebsocket(server: HttpServer) {
         const io = SocketIO(server);
         io.on("connection", (client) => {
-            this.pageManager.onNewSocket(client);
+            this.remoteManager.onNewSocket(client);
         });
     }
     protected async resolveRoute(url: string, req: express.Request, res: express.Response, isFull = true) {

@@ -1,11 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const onemitter_1 = require("onemitter");
-class default_1 {
+class Remote {
     constructor(config) {
         this.config = config;
         this.remoteData1 = onemitter_1.default();
-        this.remoteData1.emit("remote-data1-" + config.params.param1);
+        let i = 0;
+        setInterval(() => {
+            this.remoteData1.emit("remote-data1-" + config.params.param1 + ++i);
+        }, 100);
     }
 }
-exports.default = default_1;
+exports.default = Remote;
+Remote.prototype.__data = ["remoteData1"];

@@ -27,7 +27,6 @@ class BrowserRouter {
     }
     push(url) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("push", url);
             history.pushState(yield this.navigate(url), "", url);
         });
     }

@@ -1,5 +1,5 @@
 // tslint:disable max-classes-per-file
-import { createReadStream, exists, readFile } from "fs";
+import { createReadStream, exists, readFile, stat, writeFile } from "fs";
 import { resolve } from "path";
 import { promisify } from "util";
 import { IFrameConfig } from "..";
@@ -52,12 +52,17 @@ class FileConfiguration {
         if (!await promisify(exists)(resolve(this.config.appDir + "/frames/" + name))) {
             throw { code: 404, text: "Not found frame " + name };
         }
+        const remote = this.resolveRemote(name);
         return {
             name,
             actions: this.resolveActions(name),
             view: this.resolveView(name),
             data: this.resolveData(name),
-            remote: this.resolveRemote(name),
+            remote,
+            remoteClient: {
+                data: remote.prototype.__data || [],
+                actions: remote.prototype.__actions || [],
+            },
         };
     }
     protected resolveRemote(name: string) {

@@ -1,28 +1,27 @@
 import ReactDOM = require("react-dom");
-import { IFramesRoute, IRouteInfo } from "./..";
+import { IRouteInfo } from "./..";
 import BrowserRouter from "./BrowserRouter";
 import BundleConfiguration from "./BundleConfiguration";
 import FrameController from "./FrameController";
 import ModulesManager from "./ModulesManager";
 import RouteResolver from "./RouteResolver";
-// import SocketClient from "./SocketClient";
-// const sessionInfo: { id: string; hash: string } = (window as any).__session_info;
-/*const socketClient = new SocketClient({
-    address: window.location.protocol + window.location.host,
-    sid: sessionInfo.id + sessionInfo.hash,
-    pid: Math.random().toString(),
-});*/
+import WebsocketRemoteProvider from "./WebsocketRemoteProvider";
+
 const routeInfo: IRouteInfo = (window as any).__initial_data;
 const modulesManager = new ModulesManager({
     address: window.location.protocol + "//" + window.location.host + "/modules",
 });
 modulesManager.preloadModules(routeInfo.modules).then(() => {
+    const remoteProvider = new WebsocketRemoteProvider({
+        address: window.location.protocol + "//" + window.location.host,
+        sid: getCookie("sid"),
+    });
     const configuration = new BundleConfiguration({
         modulesManager,
     });
     const frameController = new FrameController({
         configuration,
-        remote: {} as any,
+        remote: remoteProvider,
     });
     const routeResolver = new RouteResolver({
         address: window.location.protocol + "//" + window.location.host,
@@ -42,3 +41,9 @@ modulesManager.preloadModules(routeInfo.modules).then(() => {
         });
     });
 });
+function getCookie(name: string) {
+    const matches = document.cookie.match(new RegExp(
+        "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, "\\$1") + "=([^;]*)",
+    ));
+    return matches ? decodeURIComponent(matches[1]) : "";
+}

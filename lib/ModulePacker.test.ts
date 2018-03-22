@@ -3,7 +3,7 @@ import mkdirp = require("mkdirp");
 
 import rimraf = require("rimraf");
 import { promisify } from "util";
-import { REQUIRE_FUNC_NAME } from "./../";
+import { REQUIRE_FUNC_NAME } from "./../common";
 import ModulePacker from "./ModulePacker";
 let packer: ModulePacker;
 const tmpDir = __dirname + "/../tmp";
