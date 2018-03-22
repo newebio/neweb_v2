@@ -28,5 +28,8 @@ class FrameRemoteServer {
             await this.remote[actionName](args),
         );
     }
+    public offData(dataName: string) {
+        this.remote[dataName].removeAllListeners();
+    }
 }
 export default FrameRemoteServer;

@@ -149,16 +149,13 @@ class Server {
                 "Content-Type": "text/html",
                 "Set-Cookie": sidCookie,
             });
-            res.write(`<!doctype><html><head>
-            <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.12/semantic.min.css"></link>
-            </head>
-            <body><div id="root">`);
-            res.write(html + `</div>`);
-            res.write(`<script>
-                window.__initial_data=${JSON.stringify(result)};
-            </script>`);
-            res.write(`<script src="/bundle.js"></script>
-            </body></html>`);
+            const template = await this.configuration.resolveTemplate();
+            res.write(template
+                .replace("{%__initial_html__%}", html)
+                .replace("{%__initial_script__%}", `<script>
+                    window.__initial_data=${JSON.stringify(result)};
+                    </script>`,
+            ));
             res.end();
         } else {
             res.writeHead(200, {

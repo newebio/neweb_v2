@@ -1,6 +1,6 @@
 {
   "name": "neweb",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -8,6 +8,9 @@
     "watch:test": "jest --watch",
     "build": "webpack --mode=development",
     "build:watch": "webpack -w --mode=development"
+  },
+  "bin": {
+    "neweb": "bin.js"
   },
   "repository": {
     "type": "git",
@@ -54,7 +57,7 @@
     "express": "^4.16.3",
     "globby": "^8.0.1",
     "mkdirp": "^0.5.1",
-    "neweb-core": "^0.2.0",
+    "neweb-core": "^0.2.1",
     "onemitter": "^0.2.2",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",

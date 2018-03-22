@@ -45,6 +45,17 @@ class FileConfiguration {
         }
         return modules;
     }
+    public async resolveTemplate() {
+        if (!await promisify(exists)(resolve(this.config.appDir + "/template.html"))) {
+            return `<!doctype><html><head>
+            </head>
+            <body><div id="root">{%__initial_html__%}</div>
+            {%__initial_script__%}
+            <script src="/bundle.js"></script>
+            </body></html>`;
+        }
+        return (await promisify(readFile)(resolve(this.config.appDir + "/template.html"))).toString();
+    }
     public async hasFrame(name: string) {
         return promisify(exists)(resolve(this.config.appDir + "/frames/" + name));
     }

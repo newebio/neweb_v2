@@ -36,6 +36,7 @@ export interface ISessionFrameRoute {
     };
 }
 export interface IConfiguration {
+    resolveTemplate(): Promise<string>;
     resolveFrame(name: string): Promise<IFrameConfig>;
     hasFrame(name: string): Promise<boolean>;
     getModulesForFrame(name: string): Promise<IPackInfoModule[]>;
@@ -105,4 +106,7 @@ export interface IRemoteMessageFrameAction extends IRemoteMessageFrameParams {
     actionId: string;
     actionName: string;
     args: any;
+}
+export interface IRemoteMessageFrameOffData extends IRemoteMessageFrameParams {
+    dataName: string;
 }

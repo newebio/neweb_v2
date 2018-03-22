@@ -1,5 +1,8 @@
 import SocketIO = require("socket.io");
-import { IConfiguration, IRemoteMessageFrameAction, IRemoteMessageFrameData, IRemoteMessageFrameParams } from "./..";
+import {
+    IConfiguration, IRemoteMessageFrameAction,
+    IRemoteMessageFrameData, IRemoteMessageFrameOffData, IRemoteMessageFrameParams,
+} from "./..";
 import FrameRemoteServer from "./FrameRemoteServer";
 import SessionsManager from "./SessionsManager";
 export interface IRemoteManagerConfig {
@@ -22,8 +25,10 @@ class RemoteManager {
                 params.actionId,
                 params.actionName, params.args);
         });
-        socket.on("off-frame-data", () => {
-            // TODO:
+        socket.on("off-frame-data", async (params: IRemoteMessageFrameOffData) => {
+            if (this.frames[params.frameId]) {
+                this.frames[params.frameId].frameRemote.offData(params.dataName);
+            }
         });
     }
     protected async createFrameRemoteServer(socket: SocketIO.Socket, params: IRemoteMessageFrameParams) {

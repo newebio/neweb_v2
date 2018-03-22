@@ -1,6 +1,7 @@
+import { data } from "neweb-core";
 import o from "onemitter";
 export default class Remote {
-
+    @data
     public remoteData1 = o();
     constructor(protected config: { params: any }) {
         let i = 0;
@@ -9,4 +10,3 @@ export default class Remote {
         }, 100);
     }
 }
-Remote.prototype.__data = ["remoteData1"];

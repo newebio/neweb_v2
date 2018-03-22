@@ -4503,9 +4503,9 @@ neo-async@^2.5.0:
   version "2.5.0"
   resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.5.0.tgz#76b1c823130cca26acfbaccc8fbaf0a2fa33b18f"
 
-neweb-core@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/neweb-core/-/neweb-core-0.2.0.tgz#0d7e2a6bc30a47b932a965b97d8e24e3fbe78949"
+neweb-core@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/neweb-core/-/neweb-core-0.2.1.tgz#00b6b241d2bf2ec158bebf848f1ba0456704281d"
   dependencies:
     onemitter "^0.2.2"
 
